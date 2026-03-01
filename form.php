@@ -5,5 +5,3 @@
   <textarea name="message" placeholder="Write your message" rows="5" cols="30"></textarea>
   <input type="submit" name="secure_form_submit" value="Submit">
 </form>
-
-I

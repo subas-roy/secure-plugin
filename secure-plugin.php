@@ -25,3 +25,10 @@ function secure_plugin_enqueue_assets() {
 }
 add_action('wp_enqueue_scripts', 'secure_plugin_enqueue_assets');
 
+// Shortcode 
+function secure_plugin_from_shortcode() {
+  ob_start();
+  include_once 'form.php';
+  return ob_get_clean();
+}
+add_shortcode('secure_plugin_from', 'secure_plugin_from_shortcode');
