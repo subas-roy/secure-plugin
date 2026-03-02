@@ -18,53 +18,58 @@
 // 3. Input sanitization
 // 4. Escaping output
 
-function secure_plugin_enqueue_assets() {
-  wp_enqueue_style( 'secure-plugin', plugin_dir_url( __FILE__ ) . 'style.css', [], '1.0.0', 'all' );
-  wp_enqueue_script( 'secure-plugin', plugin_dir_url( __FILE__ ) . 'ajax-script.js', ['jquery'], '1.0.0', true);
+function secure_plugin_enqueue_assets()
+{
+  wp_enqueue_style('secure-plugin', plugin_dir_url(__FILE__) . 'style.css', [], '1.0.0', 'all');
+  wp_enqueue_script('secure-plugin', plugin_dir_url(__FILE__) . 'ajax-script.js', ['jquery'], '1.0.0', true);
 
-  wp_localize_script( 'secure-plugin', 'siteInfo', [
+  // The wp_localize_script function is used to pass data from PHP to JavaScript. In this case, we are passing the AJAX URL and a nonce for security. The 'siteInfo' object will be available in the JavaScript file (ajax-script.js) and can be accessed to make AJAX requests securely. The nonce is used to verify that the request is coming from a trusted source, preventing unauthorized access.
+  wp_localize_script('secure-plugin', 'siteInfo', [
     'ajaxUrl' => admin_url('admin-ajax.php'),
-    'nonce' => wp_create_nonce( 'secure_plugin_nonce')
+    'nonce' => wp_create_nonce('secure_plugin_nonce'),
+    'test' => 'value',
   ]);
 }
-add_action( 'wp_enqueue_scripts', 'secure_plugin_enqueue_assets' );
+add_action('wp_enqueue_scripts', 'secure_plugin_enqueue_assets');
 
 
-function secure_plugin_form_shortcode() {
+function secure_plugin_form_shortcode()
+{
   ob_start();
   include_once 'form.php';
   return ob_get_clean();
 }
-add_shortcode('secure_plugin_form', 'secure_plugin_form_shortcode' );
+add_shortcode('secure_plugin_form', 'secure_plugin_form_shortcode');
 
 
-function secure_plugin_form_handler() {
-  if (!wp_verify_nonce( $_REQUEST['nonce'], 'secure_plugin_nonce' )) {
-    wp_send_json_error( 'unauthorized request');
+function secure_plugin_form_handler()
+{
+  if (!wp_verify_nonce($_REQUEST['nonce'], 'secure_plugin_nonce')) {
+    wp_send_json_error('unauthorized request');
   }
 
-  parse_str( $_REQUEST['form_data'], $post ); // Convert query string to associative array using parse_str function
+  parse_str($_REQUEST['form_data'], $post); // Convert query string to associative array using parse_str function
 
-  if (!is_string($post['name'] ) ) {
-    wp_send_json_error( 'Name must be a string');
+  if (!is_string($post['name'])) {
+    wp_send_json_error('Name must be a string');
   }
-  if (!is_email($post['email'] ) ) {
-    wp_send_json_error( 'Email must be a valid email address' );
+  if (!is_email($post['email'])) {
+    wp_send_json_error('Email must be a valid email address');
   }
-  if (!is_numeric( $post['age'])) {
-    wp_send_json_error( 'Age must be a number');
+  if (!is_numeric($post['age'])) {
+    wp_send_json_error('Age must be a number');
   }
-  if (!is_string($post['message'] ) ) {
+  if (!is_string($post['message'])) {
     wp_send_json_error('Message must be a string');
   }
 
   $sanitize = $post;
-  $sanitize['name'] = sanitize_text_field( $sanitize['name']);
-  $sanitize['email'] = sanitize_email( $sanitize['email']);
+  $sanitize['name'] = sanitize_text_field($sanitize['name']);
+  $sanitize['email'] = sanitize_email($sanitize['email']);
   $sanitize['age'] = intval($sanitize['age']);
-  $sanitize['message'] = sanitize_textarea_field( $sanitize['message']);
+  $sanitize['message'] = sanitize_textarea_field($sanitize['message']);
 
-  update_option( 'secure_plugin_data', $sanitize );
-  wp_send_json_success( $sanitize );
+  update_option('secure_plugin_data', $sanitize);
+  wp_send_json_success($sanitize);
 }
-add_action( 'wp_ajax_secure_plugin_ajax', 'secure_plugin_form_handler' );
+add_action('wp_ajax_secure_plugin_ajax', 'secure_plugin_form_handler');

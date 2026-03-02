@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
 
-  console.log("Loaded");
+  // console.log(siteInfo); // Log the siteInfo object to verify that it contains the expected data
 
   $("#secure-plugin-form").on("submit", function (e) {
     e.preventDefault();
@@ -14,7 +14,8 @@ jQuery(document).ready(function ($) {
         form_data: $(this).serialize(),
       },
       success: function (response) {
-        console.log(response);
+        $("#secure-plugin-form").trigger('reset'); // Reset the form after successful submission
+        // console.log(response); // Log the response from the server to verify that the AJAX request was successful
       },
     });
     
