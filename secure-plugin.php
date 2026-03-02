@@ -43,8 +43,10 @@ function secure_plugin_form_handler() {
     wp_send_json_error( 'unauthorized request');
   }
 
+  parse_str( $_REQUEST['form_data'], $post ); // Convert query string to associative array using parse_str function
+
   error_log( '==============================' );
-  error_log(print_r( $_REQUEST, true ));
+  error_log(print_r( $post, true ));
   error_log( '==============================' );
 }
 add_action( 'wp_ajax_secure_plugin_ajax', 'secure_plugin_form_handler' );
