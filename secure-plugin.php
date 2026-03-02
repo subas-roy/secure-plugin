@@ -58,8 +58,13 @@ function secure_plugin_form_handler() {
     wp_send_json_error('Message must be a string');
   }
 
-  error_log( '==============================' );
-  error_log(print_r( $post, true ));
-  error_log( '==============================' );
+  $sanitize = $post;
+  $sanitize['name'] = sanitize_text_field( $sanitize['name']);
+  $sanitize['email'] = sanitize_email( $sanitize['email']);
+  $sanitize['age'] = intval($sanitize['age']);
+  $sanitize['message'] = sanitize_textarea_field( $sanitize['message']);
+
+  update_option( 'secure_plugin_data', $sanitize );
+  wp_send_json_success( $sanitize );
 }
 add_action( 'wp_ajax_secure_plugin_ajax', 'secure_plugin_form_handler' );
