@@ -18,37 +18,33 @@
 // 3. Input sanitization
 // 4. Escaping output
 
-// Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
-
-// Enqueue assets
 function secure_plugin_enqueue_assets() {
-    wp_enqueue_style('secure-plugin', plugin_dir_url(__FILE__) . 'style.css', [], '1.0.0', 'all');
-    wp_enqueue_script('secure-plugin', plugin_dir_url(__FILE__) . 'ajax-script.js', ['jquery'], '1.0.0', true);
+  wp_enqueue_style( 'secure-plugin', plugin_dir_url( __FILE__ ) . 'style.css', [], '1.0.0', 'all' );
+  wp_enqueue_script( 'secure-plugin', plugin_dir_url( __FILE__ ) . 'ajax-script.js', ['jquery'], '1.0.0', true);
 
-    // Localize script to pass AJAX URL and nonce
-    wp_localize_script('secure-plugin', 'siteInfo', [
-        'ajaxUrl' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('secure_plugin_nonce')
-    ]);
+  wp_localize_script( 'secure-plugin', 'siteInfo', [
+    'ajaxUrl' => admin_url('admin-ajax.php'),
+    'nonce' => wp_create_nonce( 'secure_plugin_nonce')
+  ]);
 }
-add_action('wp_enqueue_scripts', 'secure_plugin_enqueue_assets');
+add_action( 'wp_enqueue_scripts', 'secure_plugin_enqueue_assets' );
 
-// Shortcode 
-function secure_plugin_from_shortcode() {
+
+function secure_plugin_form_shortcode() {
   ob_start();
   include_once 'form.php';
   return ob_get_clean();
 }
-add_shortcode('secure_plugin_from', 'secure_plugin_from_shortcode');
+add_shortcode('secure_plugin_form', 'secure_plugin_form_shortcode' );
 
 
-// Register AJAX handler
 function secure_plugin_form_handler() {
-  error_log('==============');
-  error_log(print_r($_REQUEST, true));
-  error_log('==============');
+  if (!wp_verify_nonce( $_REQUEST['nonce'], 'secure_plugin_nonce' )) {
+    wp_send_json_error( 'unauthorized request');
+  }
+
+  error_log( '==============================' );
+  error_log(print_r( $_REQUEST, true ));
+  error_log( '==============================' );
 }
-add_action('wp_ajax_secure_plugin_ajax', 'secure_plugin_form_handler');
+add_action( 'wp_ajax_secure_plugin_ajax', 'secure_plugin_form_handler' );
