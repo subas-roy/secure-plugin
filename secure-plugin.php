@@ -45,6 +45,19 @@ function secure_plugin_form_handler() {
 
   parse_str( $_REQUEST['form_data'], $post ); // Convert query string to associative array using parse_str function
 
+  if (!is_string($post['name'] ) ) {
+    wp_send_json_error( 'Name must be a string');
+  }
+  if (!is_email($post['email'] ) ) {
+    wp_send_json_error( 'Email must be a valid email address' );
+  }
+  if (!is_numeric( $post['age'])) {
+    wp_send_json_error( 'Age must be a number');
+  }
+  if (!is_string($post['message'] ) ) {
+    wp_send_json_error('Message must be a string');
+  }
+
   error_log( '==============================' );
   error_log(print_r( $post, true ));
   error_log( '==============================' );
